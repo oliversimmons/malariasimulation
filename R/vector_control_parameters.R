@@ -11,8 +11,16 @@
 #' If a human in the sample already has a bed net, their bed net will be replaced
 #' by a new one.
 #'
+#' Using the gamman parameter:
+#'
 #' Bed nets will be randomly removed each timestep with a rate of `1 -
 #' exp(-1/retention)`
+#'
+#' Alternatively, the logistic retention parameters can be used. Retention time
+#' is calculated using the logistic decay function:
+#'
+#' l (time at which all nets fail) = half_life / sqrt(1 - k / (k - log(0.5)))
+#' T (simulated time for individual failure) = l * sqrt( a / (1 + a ) ),  a = -log(U)/k
 #'
 #' The structure for the bed net model is documented in the
 #' S.I. of 10.1038/s41467-018-07357-w
@@ -20,26 +28,30 @@
 #' @param parameters a list of parameters to modify
 #' @param timesteps the timesteps at which to distribute bed nets
 #' @param coverages the proportion of the human population who receive bed nets
-#' @param retention the average number of timesteps a net is kept for
 #' @param dn0 a matrix of death probabilities for each species over time.
 #' With nrows=length(timesteps), ncols=length(species)
 #' @param rn a matrix of repelling probabilities for each species over time
 #' With nrows=length(timesteps), ncols=length(species)
 #' @param rnm a matrix of minimum repelling probabilities for each species over time
 #' With nrows=length(timesteps), ncols=length(species)
-#' @param gamman a vector of bednet half-lives for each distribution timestep
+#' @param gamman a vector of bednet insecticide half-lives for each distribution timestep
+#' @param retention (optional) the average number of timesteps a net is kept for (modelled using a log uniform)
+#' @param logistic_half_life (optional) bednet retention half-life (modelled using logistic decay)
+#' @param logistic_k (optional) k parameter for retention modelled using logistic decay
 #' @export
 set_bednets <- function(
     parameters,
     timesteps,
     coverages,
-    retention,
     dn0,
     rn,
     rnm,
     gamman,
     min_ages,
-    max_ages
+    max_ages,
+    retention = NULL,
+    logistic_half_life = NULL,
+    logistic_k = NULL
 ) {
   stopifnot(all(coverages >= 0) && all(coverages <= 1))
   lengths <- vnapply(list(coverages, gamman), length)
@@ -60,6 +72,34 @@ set_bednets <- function(
       stop('death and repelling probabilities columns need to align with timesteps')
     }
   }
+
+  retention_set <- FALSE
+  if (!is.null(retention)) {
+    if (!is.null(logistic_half_life) || !is.null(logistic_k)) {
+      stop('retention cannot be used with logistic_half_life or logistic_k')
+    }
+    parameters$bednet_retention <- retention
+    retention_set <- TRUE
+  }
+  if (!is.null(logistic_half_life) && !is.null(logistic_k)) {
+    if (!is.null(retention)) {
+      stop('logistic_half_life cannot be used with retention')
+    }
+    parameters$bednet_logistic_half_life <- logistic_half_life
+    parameters$bednet_logistic_k <- logistic_k
+    retention_set <- TRUE
+  }
+  if (!retention_set) {
+    stop('retention must be set')
+  }
+
+  if (!all((dn0 + rn) < 1)) {
+    stop('all death and repelling probabilities must sum to less than 1')
+  }
+  if (!all(rnm < rn)) {
+    stop('rnm must be less than rn')
+  }
+
   parameters$bednets <- TRUE
   parameters$bednet_timesteps <- timesteps
   parameters$bednet_coverages <- coverages
@@ -70,6 +110,7 @@ set_bednets <- function(
   parameters$bednet_retention <- retention
   parameters$bednet_min_ages <- min_ages
   parameters$bednet_max_ages <- max_ages
+
   parameters
 }
 
