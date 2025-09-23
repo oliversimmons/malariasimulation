@@ -19,7 +19,7 @@
 #' @param iaa age breaks for average acquired antiparasite immunity (pv only); default = NULL
 #' @param iam age breaks for average maternal antiparasite immunity (pv only); default = NULL
 #' @param hypnozoites age breaks for average hypnozoite batches (pv only); default = NULL
-#' @param n_use_net age breaks for number of people using bed nets; default = NULL
+#' @param n_use_net age breaks people using bed nets; default = NULL
 #' @export
 #'
 set_epi_outputs <- function(parameters,
