@@ -1,6 +1,6 @@
 Package: malariasimulation
 Title: An individual based model for malaria
-Version: 2.0.2
+Version: 3.0.0
 Authors@R: c(
   person(
     given = "Giovanni",
@@ -93,7 +93,7 @@ Suggests:
   ggplot2,
   covr,
   mgcv 
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 LinkingTo:
   Rcpp,
