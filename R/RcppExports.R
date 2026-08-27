@@ -21,6 +21,26 @@ create_adult_solver <- function(model, init, r_tol, a_tol, max_steps) {
     .Call(`_malariasimulation_create_adult_solver`, model, init, r_tol, a_tol, max_steps)
 }
 
+create_adult_mosquito_model_fe <- function(emergence_timeseries, mu, tau, susceptible, foim, total_M) {
+    .Call(`_malariasimulation_create_adult_mosquito_model_fe`, emergence_timeseries, mu, tau, susceptible, foim, total_M)
+}
+
+adult_mosquito_model_update_fe <- function(model, mu, foim, susceptible, total_M) {
+    invisible(.Call(`_malariasimulation_adult_mosquito_model_update_fe`, model, mu, foim, susceptible, total_M))
+}
+
+adult_mosquito_model_fe_save_state <- function(model) {
+    .Call(`_malariasimulation_adult_mosquito_model_fe_save_state`, model)
+}
+
+adult_mosquito_model_fe_restore_state <- function(model, state) {
+    invisible(.Call(`_malariasimulation_adult_mosquito_model_fe_restore_state`, model, state))
+}
+
+create_adult_fe_solver <- function(model, init, r_tol, a_tol, max_steps) {
+    .Call(`_malariasimulation_create_adult_fe_solver`, model, init, r_tol, a_tol, max_steps)
+}
+
 create_aquatic_mosquito_model <- function(beta, de, mue, k_timeseries, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f, rainfall_floor) {
     .Call(`_malariasimulation_create_aquatic_mosquito_model`, beta, de, mue, k_timeseries, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f, rainfall_floor)
 }

@@ -120,6 +120,12 @@ equilibrium_total_M <- function(parameters, EIR) {
   )
 }
 
+
+calc_equilibrium_emergence <- function(parameters, EIR, species){
+  equilibrium_total_M(parameters, EIR) * parameters$species_proportions[[species]] * parameters$mum[[species]]
+}
+
+
 #' @title Calculate the yearly offset (in timesteps) for the peak mosquito
 #' season
 #'
@@ -245,4 +251,50 @@ create_mosquito_emergence_process <- function(
       latest <- latest + to_hatch + 1
     }
   }
+}
+
+
+create_forced_mosquito_emergence_process <- function(
+    state,
+    species,
+    species_names,
+    init_EIR,
+    parameters
+) {
+  function(timestep) {
+      if(force_emergence_values == NULL){
+        species_n <- vnapply(species, calc_equilibrium_emergence, parameters = parameters, EIR = init_EIR)
+      } else{
+        species_n <- vnapply(species, calc_equilibrium_emergence, parameters = parameters, EIR = init_EIR) * 
+          get_forced_emergence_multiplier(parameters, timestep)
+      }
+    n <- sum(species_n)
+    available <- state$get_size_of('NonExistent')
+    if (n > available) {
+      stop(paste0(
+        'Not enough mosquitoes (short by ',
+        n - available,
+        '). Please raise parameters$mosquito_limit. ',
+        'If you have used parameterise_mosquito_equilibrium,',
+        'your seasonality parameters lead to more mosquitoes than expected.'
+      ))
+    }
+    non_existent <- state$get_index_of('NonExistent')
+    latest <- 1
+    for (i in seq_along(species_names)) {
+      to_hatch <- species_n[[i]]
+      hatched <- bitset_at(non_existent, seq(latest, latest + to_hatch))
+      state$queue_update('Sm', hatched)
+      species$queue_update(species_names[[i]], hatched)
+      latest <- latest + to_hatch + 1
+    }
+  }
+}
+
+get_forced_emergence_multiplier <- function(parameters, timestep) {
+  previous <- which(parameters$force_emergence_timesteps <= timestep)
+  if (length(previous) == 0) {
+    return(0)
+  }
+  parameters$force_emergence_values[[max(previous)]]
 }

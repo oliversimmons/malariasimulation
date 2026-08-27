@@ -404,6 +404,10 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       carrying_capacity = FALSE,
       carrying_capacity_timesteps = NULL,
       carrying_capacity_values = NULL,
+      #forced emergence rate parameters
+      force_emergence = FALSE,
+      force_emergence_timesteps = NULL, 
+      force_emergence_values = NULL,
       # treatment parameters
       drug_efficacy          = numeric(0),
       drug_rel_c             = numeric(0),

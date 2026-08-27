@@ -21,6 +21,18 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
           )
         }
       }
+      if (parameters$force_emergence) {
+      betaa0 <- calc_equilibrium_emergence(parameters, parameters$init_EIR, i)
+      emergence_timeseries <- create_timeseries(size = length(parameters$force_emergence_timesteps), betaa0)
+        for(j in 1:length(parameters$force_emergence_timesteps)){
+          timeseries_push(
+            emergence_timeseries,
+            parameters$force_emergence_values[j] * betaa0,
+            parameters$force_emergence_timesteps[j]
+          )
+        }
+      }
+      if (!parameters$force_emergence) {
       growth_model <- create_aquatic_mosquito_model(
         parameters$beta,
         parameters$del,
@@ -41,8 +53,9 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
         parameters$blood_meal_rates[[i]],
         parameters$rainfall_floor
       )
+      }
       
-      if (!parameters$individual_mosquitoes) {
+      if (!parameters$individual_mosquitoes && !parameters$force_emergence) {
         susceptible <- initial_mosquito_counts(
           parameters,
           i,
@@ -59,7 +72,26 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
           ))
         )
       }
-      AquaticMosquitoModel$new(growth_model)
+      if (!parameters$individual_mosquitoes && parameters$force_emergence) {
+        susceptible <- initial_mosquito_counts(
+          parameters,
+          i,
+          parameters$init_foim,
+          m
+        )[ADULT_ODE_INDICES['Sm']]
+        return(
+          AdultMosquitoModelFE$new(create_adult_mosquito_model_fe(
+            emergence_timeseries,
+            parameters$mum[[i]],
+            parameters$dem,
+            susceptible * parameters$init_foim,
+            parameters$init_foim,
+            m
+          ))
+        )
+      }
+      if(!parameters$force_emergence) {
+        AquaticMosquitoModel$new(growth_model)}
     }
   )
 }
@@ -95,7 +127,8 @@ parameterise_solvers <- function(models, parameters) {
 create_compartmental_rendering_process <- function(renderer, solvers, parameters) {
   if (parameters$individual_mosquitoes) {
     indices <- ODE_INDICES
-  } else {
+  } else if(!parameters$individual_mosquitoes && parameters$force_emergence){
+    indices <- ADULT_ODE_INDICES} else{
     indices <- c(ODE_INDICES, ADULT_ODE_INDICES)
   }
   
@@ -189,6 +222,22 @@ AdultMosquitoModel <- R6::R6Class(
     },
     restore_state = function(t, state) {
       adult_mosquito_model_restore_state(self$.model, state)
+    }
+  )
+)
+
+AdultMosquitoModelFE <- R6::R6Class(
+  'AdultMosquitoModelFE',
+  public = list(
+    .model = NULL,
+    initialize = function(model) {
+      self$.model <- model
+    },
+    save_state = function() {
+      adult_mosquito_model_fe_save_state(self$.model)
+    },
+    restore_state = function(t, state) {
+      adult_mosquito_model_fe_restore_state(self$.model, state)
     }
   )
 )

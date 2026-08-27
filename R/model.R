@@ -220,6 +220,10 @@ run_metapop_simulation <- function(
   p_success
   ) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
+  
+  if (any(vlapply(parameters, function(p) isTRUE(p$force_emergence)))) {
+    stop('force_emergence is provisionally not supported in metapopulation simulations')
+  }
 
   for (mixing in list(export_mixing, import_mixing)) {
     if (!is.list(mixing)) {

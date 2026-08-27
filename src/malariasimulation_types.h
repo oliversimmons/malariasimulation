@@ -11,6 +11,7 @@
 #include <individual.h>
 #include "aquatic_mosquito_eqs.h"
 #include "adult_mosquito_eqs.h"
+#include "adult_mosquito_eqs_fe.h"
 #include "solver.h"
 #include "timeseries.h"
 

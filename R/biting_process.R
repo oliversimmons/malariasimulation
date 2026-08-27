@@ -200,8 +200,16 @@ simulate_bites <- function(
         parameters,
         timestep
       )
-    } else {
+    } else if(!parameters$force_emergence){
       adult_mosquito_model_update(
+        models[[s_i]]$.model,
+        mu,
+        foim,
+        solver_states[[ADULT_ODE_INDICES['Sm']]],
+        f
+      )
+    } else{
+      adult_mosquito_model_update_fe(
         models[[s_i]]$.model,
         mu,
         foim,

@@ -77,7 +77,7 @@ create_processes <- function(
     )
   }
 
-  if (parameters$individual_mosquitoes) {
+  if (parameters$individual_mosquitoes && !parameters$force_emergence) {
     processes <- c(
       processes,
       mosquito_emergence_process = create_mosquito_emergence_process(
@@ -86,6 +86,19 @@ create_processes <- function(
         variables$species,
         parameters$species,
         parameters$dpl
+      )
+    )
+  } 
+  
+  if (parameters$individual_mosquitoes && parameters$force_emergence) {
+    processes <- c(
+      processes,
+      mosquito_emergence_process = create_forced_mosquito_emergence_process(
+        variables$mosquito_state,
+        variables$species,
+        parameters$species,
+        parameters$init_EIR,
+        parameters
       )
     )
   }
