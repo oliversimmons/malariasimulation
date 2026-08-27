@@ -102,6 +102,7 @@ parameterise_solvers <- function(models, parameters) {
     function(i) {
       m <- parameters$species_proportions[[i]] * parameters$total_M
       init <- initial_mosquito_counts(parameters, i, parameters$init_foim, m)
+      if(!parameters$force_emergence){
       if (!parameters$individual_mosquitoes) {
         return(
           Solver$new(create_adult_solver(
@@ -120,6 +121,15 @@ parameterise_solvers <- function(models, parameters) {
         parameters$a_tol,
         parameters$ode_max_steps
       ))
+      } else{
+        Solver$new(create_adult_fe_solver(
+          models[[i]]$.model,
+          init,
+          parameters$r_tol,
+          parameters$a_tol,
+          parameters$ode_max_steps
+        ))
+      }
     }
   )
 }
