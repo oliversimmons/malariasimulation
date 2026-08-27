@@ -358,8 +358,12 @@ create_variables <- function(parameters) {
           parameters$total_M * parameters$species_proportions[[i]]
         )
       )
-
-      species_M <- sum(mosquito_counts[ADULT_ODE_INDICES])
+      
+     # if(parameters$force_emergence){
+      #  species_M <- sum(mosquito_counts[ADULT_FE_ODE_INDICES])
+      #}else{
+        species_M <- sum(mosquito_counts[ADULT_ODE_INDICES])
+      #}
 
       if (species_M > 0) {
         if (length(species_values) > parameters$mosquito_limit) {
@@ -375,6 +379,7 @@ create_variables <- function(parameters) {
           rep(
             c('Sm', 'Pm', 'Im'),
             times = mosquito_counts[ADULT_ODE_INDICES]
+            #times = ifelse(parameters$force_emergence, mosquito_counts[ADULT_FE_ODE_INDICES], mosquito_counts[ADULT_ODE_INDICES])
           )
         )
       }

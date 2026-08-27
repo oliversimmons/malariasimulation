@@ -1,5 +1,6 @@
 ODE_INDICES <- c(E = 1, L = 2, P = 3)
 ADULT_ODE_INDICES <- c(Sm = 4, Pm = 5, Im = 6)
+ADULT_FE_ODE_INDICES <- c(Sm = 1, Pm = 2, Im = 3)
 
 parameterise_mosquito_models <- function(parameters, timesteps) {
   
@@ -54,14 +55,13 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
         parameters$rainfall_floor
       )
       }
-      
-      if (!parameters$individual_mosquitoes && !parameters$force_emergence) {
-        susceptible <- initial_mosquito_counts(
-          parameters,
-          i,
-          parameters$init_foim,
-          m
-        )[ADULT_ODE_INDICES['Sm']]
+      susceptible <- initial_mosquito_counts(
+        parameters,
+        i,
+        parameters$init_foim,
+        m
+      )[ADULT_ODE_INDICES['Sm']]
+        if (!parameters$individual_mosquitoes && !parameters$force_emergence) {
         return(
           AdultMosquitoModel$new(create_adult_mosquito_model(
             growth_model,
@@ -72,21 +72,14 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
           ))
         )
       }
-      if (!parameters$individual_mosquitoes && parameters$force_emergence) {
-        susceptible <- initial_mosquito_counts(
-          parameters,
-          i,
-          parameters$init_foim,
-          m
-        )[ADULT_ODE_INDICES['Sm']]
+      if (parameters$force_emergence && !parameters$individual_mosquitoes) {
         return(
           AdultMosquitoModelFE$new(create_adult_mosquito_model_fe(
             emergence_timeseries,
             parameters$mum[[i]],
             parameters$dem,
             susceptible * parameters$init_foim,
-            parameters$init_foim,
-            m
+            parameters$init_foim
           ))
         )
       }
@@ -122,13 +115,15 @@ parameterise_solvers <- function(models, parameters) {
         parameters$ode_max_steps
       ))
       } else{
+        return(
         Solver$new(create_adult_fe_solver(
           models[[i]]$.model,
-          init,
+          init[ADULT_ODE_INDICES],
           parameters$r_tol,
           parameters$a_tol,
           parameters$ode_max_steps
         ))
+        )
       }
     }
   )
@@ -137,8 +132,9 @@ parameterise_solvers <- function(models, parameters) {
 create_compartmental_rendering_process <- function(renderer, solvers, parameters) {
   if (parameters$individual_mosquitoes) {
     indices <- ODE_INDICES
-  } else if(!parameters$individual_mosquitoes && parameters$force_emergence){
-    indices <- ADULT_ODE_INDICES} else{
+  } else if(parameters$force_emergence && !parameters$individual_mosquitoes){
+    indices <- ADULT_FE_ODE_INDICES
+    } else{
     indices <- c(ODE_INDICES, ADULT_ODE_INDICES)
   }
   

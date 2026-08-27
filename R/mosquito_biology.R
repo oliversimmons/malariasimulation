@@ -262,7 +262,7 @@ create_forced_mosquito_emergence_process <- function(
     parameters
 ) {
   function(timestep) {
-      if(force_emergence_values == NULL){
+      if(is.null(force_emergence_values)){
         species_n <- vnapply(species, calc_equilibrium_emergence, parameters = parameters, EIR = init_EIR)
       } else{
         species_n <- vnapply(species, calc_equilibrium_emergence, parameters = parameters, EIR = init_EIR) * 

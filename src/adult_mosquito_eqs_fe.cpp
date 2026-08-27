@@ -12,9 +12,8 @@ AdultMosquitoModelFE::AdultMosquitoModelFE(
   double mu,
   double tau,
   double incubating,
-  double foim,
-  size_t total_M
-) : emergence_timeseries(emergence_timeseries), mu(mu), tau(tau), foim(foim), total_M(total_M)
+  double foim
+) : emergence_timeseries(emergence_timeseries), mu(mu), tau(tau), foim(foim)
 {
   for (auto i = 0u; i < tau; ++i) {
     lagged_incubating.push_back(incubating);
@@ -54,16 +53,14 @@ Rcpp::XPtr<AdultMosquitoModelFE> create_adult_mosquito_model_fe(
     double mu,
     double tau,
     double susceptible,
-    double foim,
-    size_t total_M
+    double foim
 ) {
   auto model = new AdultMosquitoModelFE(
     emergence_timeseries,
     mu,
     tau,
     susceptible,
-    foim,
-    total_M
+    foim
   );
   return Rcpp::XPtr<AdultMosquitoModelFE>(model, true);
 }
@@ -73,8 +70,7 @@ void adult_mosquito_model_update_fe(
     Rcpp::XPtr<AdultMosquitoModelFE> model,
     double mu,
     double foim,
-    double susceptible,
-    size_t total_M
+    double susceptible
 ) {
   model->mu = mu;
   model->foim = foim;
@@ -82,7 +78,6 @@ void adult_mosquito_model_update_fe(
   if (model->lagged_incubating.size() > 0) {
     model->lagged_incubating.pop_front();
   }
-  model->total_M = total_M;
 }
 
 //[[Rcpp::export]]

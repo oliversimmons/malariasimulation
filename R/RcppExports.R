@@ -21,12 +21,12 @@ create_adult_solver <- function(model, init, r_tol, a_tol, max_steps) {
     .Call(`_malariasimulation_create_adult_solver`, model, init, r_tol, a_tol, max_steps)
 }
 
-create_adult_mosquito_model_fe <- function(emergence_timeseries, mu, tau, susceptible, foim, total_M) {
-    .Call(`_malariasimulation_create_adult_mosquito_model_fe`, emergence_timeseries, mu, tau, susceptible, foim, total_M)
+create_adult_mosquito_model_fe <- function(emergence_timeseries, mu, tau, susceptible, foim) {
+    .Call(`_malariasimulation_create_adult_mosquito_model_fe`, emergence_timeseries, mu, tau, susceptible, foim)
 }
 
-adult_mosquito_model_update_fe <- function(model, mu, foim, susceptible, total_M) {
-    invisible(.Call(`_malariasimulation_adult_mosquito_model_update_fe`, model, mu, foim, susceptible, total_M))
+adult_mosquito_model_update_fe <- function(model, mu, foim, susceptible) {
+    invisible(.Call(`_malariasimulation_adult_mosquito_model_update_fe`, model, mu, foim, susceptible))
 }
 
 adult_mosquito_model_fe_save_state <- function(model) {

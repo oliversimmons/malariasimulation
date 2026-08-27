@@ -26,7 +26,7 @@ struct AdultMosquitoModelFE {
     const double tau; //extrinsic incubation period
     double foim; //force of infection towards mosquitoes
     size_t total_M;
-    AdultMosquitoModelFE(Rcpp::XPtr<Timeseries> emergence_timeseries, double, double, double, double, size_t total_M);
+    AdultMosquitoModelFE(Rcpp::XPtr<Timeseries> emergence_timeseries, double, double, double, double);
 };
 
 // create a system of equations for the solver
