@@ -359,11 +359,11 @@ create_variables <- function(parameters) {
         )
       )
       
-     # if(parameters$force_emergence){
-      #  species_M <- sum(mosquito_counts[ADULT_FE_ODE_INDICES])
-      #}else{
+      if(parameters$force_emergence){
+        species_M <- sum(mosquito_counts[ADULT_FE_ODE_INDICES])
+      }else{
         species_M <- sum(mosquito_counts[ADULT_ODE_INDICES])
-      #}
+      }
 
       if (species_M > 0) {
         if (length(species_values) > parameters$mosquito_limit) {

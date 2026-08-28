@@ -131,7 +131,7 @@ simulate_bites <- function(
         parameters
       )
     } else {
-      n_infectious <- calculate_infectious_compartmental(solver_states, parameters)
+      n_infectious <- calculate_infectious_compartmental(solver_states)
     }
     
     # store the current population's EIR for later
@@ -213,7 +213,8 @@ simulate_bites <- function(
         models[[s_i]]$.model,
         mu,
         foim,
-        solver_states[[ADULT_FE_ODE_INDICES['Sm']]]
+        solver_states[[ADULT_ODE_INDICES['Sm']]],
+        parameters$species_proportions[[s_i]]*parameters$total_M
       )
     }
   }
@@ -252,7 +253,7 @@ calculate_infectious <- function(species, solvers, variables, parameters) {
       )
     )
   }
-  calculate_infectious_compartmental(solvers[[species]]$get_states(), parameters)
+  calculate_infectious_compartmental(solvers[[species]]$get_states())
 }
 
 calculate_infectious_individual <- function(
@@ -266,12 +267,12 @@ calculate_infectious_individual <- function(
   infectious_index$copy()$and(species_index)$size()
 }
 
-calculate_infectious_compartmental <- function(solver_states, parameters) {
-  if(parameters$force_emergence){
-    max(solver_states[[ADULT_FE_ODE_INDICES['Im']]], 0)
-  } else{
+calculate_infectious_compartmental <- function(solver_states) {
+ # if(parameters$force_emergence){
+  #  max(solver_states[[ADULT_FE_ODE_INDICES['Im']]], 0)
+  #} else{
   max(solver_states[[ADULT_ODE_INDICES['Im']]], 0)
-  }
+  #}
 }
 
 intervention_coefficient <- function(p_bitten) {
